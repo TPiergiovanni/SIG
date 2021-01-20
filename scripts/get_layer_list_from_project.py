@@ -7,39 +7,47 @@ import os
 import csv
 
 
-# Define input .mxd directory location
-PATH2 = r"C:\01_sig\mxd"
+# Select input .mxd directory location
+mxd_directory = r"\\astrolab\MXD"
 
-# Define input .mxd directory file
-mxd_file = "inventaire.mxd"
+# Select input .mxd directory file
+mxd_file = "SuresnesInternet.mxd"
 
-# Define output directory
-OUTPUT_PATH = r"C:\01_sig\output"
+# Select output directory
+output_directory = r"C:\01_sig\output"
 
 # Define output file name
-output_file = os.path.join(OUTPUT_PATH, 'layers.csv')
+output_file_name = "suresnesinternet_layers.csv"
 
 
-arcpy.env.workspace = PATH2
+output_file = os.path.join(output_directory, output_file_name)
+error_output_file = os.path.join(output_directory,  "error_" + output_file_name)
+arcpy.env.workspace = mxd_directory
 arcpy.env.overwriteOutput = True
 layers_list = []
-
+layers_rejected_list = []
 
 for file in arcpy.ListFiles(mxd_file):
-	mxd_path = os.path.join(PATH2,file)
+	mxd_path = os.path.join(mxd_directory,file)
 	mxd = arcpy.mapping.MapDocument(mxd_path) 
 	layers = arcpy.mapping.ListLayers(mxd)
 	for layer in layers:
 		if layer.supports("DATASOURCE"):
-			fields = arcpy.ListFields(layer)
-			layer_info = {
-					"layer_name": layer.name.encode('utf-8'),
-					"layer_source": layer.dataSource.encode('utf-8'),
-					"layer_attributes": []}
-			for field in fields:
-				layer_info["layer_attributes"].append(
-						(field.name.encode('utf-8'),field.type.encode('utf-8')))
-			layers_list.append(layer_info)
+			try:
+				fields = arcpy.ListFields(layer)
+				layer_info = {
+						"layer_name": layer.name.encode('utf-8'),
+						"layer_source": layer.dataSource.encode('utf-8'),
+						"layer_attributes": []}
+
+				for field in fields:
+					layer_info["layer_attributes"].append(
+							(field.name.encode('utf-8'),field.type.encode('utf-8')))
+				layers_list.append(layer_info)
+
+			except:
+				layers_rejected_list.append(layer.name.encode('utf-8'))
+				pass
 
 	with open(output_file, 'wb') as csvfile:
 		filewriter = csv.writer(
@@ -51,4 +59,13 @@ for file in arcpy.ListFiles(mxd_file):
 					[layer["layer_name"],
 					layer["layer_source"],
 					layer["layer_attributes"]])
+
+	with open(error_output_file, 'wb') as csvfile:
+		filewriter = csv.writer(
+				csvfile, delimiter=';',
+				quotechar='"',
+				quoting=csv.QUOTE_MINIMAL)
+		for layer in layers_rejected_list:
+			filewriter.writerow(
+					[layer])
 		
