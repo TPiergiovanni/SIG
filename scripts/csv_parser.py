@@ -2,16 +2,16 @@ import csv
 import os
 from re import sub, split
 
-# Select input .mxd directory location
-input_directory = r"C:\01_sig\work\projet_va_202101\work"
+# Select input directory
+input_directory = r"C:\01_sig\projets\202101_vieassociative\work"
 
-# Select input .csvdirectory file
+# Select input .csv  file name
 input_file_name = "address_only.csv"
 
 # Select output directory
-output_directory = r"C:\01_sig\work\projet_va_202101\output"
+output_directory = r"C:\01_sig\projets\202101_vieassociative\output"
 
-# Define output file name
+# Define output .csv file name
 output_file_name = "association_adresse_parsed.csv"
 
 input_file = os.path.join(input_directory, input_file_name)
