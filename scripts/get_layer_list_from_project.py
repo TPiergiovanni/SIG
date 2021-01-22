@@ -11,13 +11,13 @@ import csv
 mxd_directory = r"\\astrolab\MXD"
 
 # Select input .mxd directory file
-mxd_file = "SuresnesInternet.mxd"
+mxd_file = "SuresnesIntranet.mxd"
 
 # Select output directory
-output_directory = r"C:\01_sig\output"
+output_directory = r"C:\01_sig\projets\202101_inventaire\output"
 
 # Define output file name
-output_file_name = "suresnesinternet_layers.csv"
+output_file_name = "suresnesintranet_layers.csv"
 
 
 output_file = os.path.join(output_directory, output_file_name)
@@ -35,9 +35,14 @@ for file in arcpy.ListFiles(mxd_file):
 		if layer.supports("DATASOURCE"):
 			try:
 				fields = arcpy.ListFields(layer)
+				txt = layer.dataSource
+
+				layer_source = txt.replace('C:\\Users\\adminabaaboua\\AppData\\Roaming\\ESRI\\Desktop10.5\\ArcCatalog\\aop@sig.sde\\', '')
+				print (layer_source)
+
 				layer_info = {
 						"layer_name": layer.name.encode('utf-8'),
-						"layer_source": layer.dataSource.encode('utf-8'),
+						"layer_source": layer_source.encode('utf-8'),
 						"layer_attributes": []}
 
 				for field in fields:
